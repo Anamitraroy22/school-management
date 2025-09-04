@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+School Directory
+This project is a web application built with Next.js that functions as a simple school directory. It allows users to add, view, and manage school information through a responsive and user-friendly interface. The application uses a MySQL database for data persistence and a RESTful API to handle communication between the front-end and back-end.
 
-## Getting Started
+Features
+School Management: Create, read, update, and delete (CRUD) school records.
 
-First, run the development server:
+Responsive Design: The application is designed to work seamlessly on both mobile devices and desktops.
 
-```bash
+Client-Side Validation: The form for adding schools includes validation to ensure data integrity.
+
+RESTful API: A robust API built with Next.js handles all data operations with the database.
+
+Database Integration: Utilizes a MySQL database to store all school information.
+
+Technologies Used
+Framework: Next.js
+
+Styling: Tailwind CSS
+
+Database: MySQL
+
+Form Management: React Hook Form
+
+API: Next.js API Routes
+
+Getting Started
+Follow these steps to set up and run the project locally.
+
+1. Database Setup
+First, you need to set up the MySQL database and create the schools table. Connect to your MySQL server and run the following SQL command:
+
+CREATE TABLE schools (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    contact VARCHAR(20) NOT NULL,
+    image TEXT,
+    email_id VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+2. Environment Variables
+Create a .env.local file in the root of the project directory and add your database credentials.
+
+DB_HOST=127.0.0.1
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=railway
+DB_PORT=3306
+
+Adjust the values to match your MySQL database configuration.
+
+3. Install Dependencies
+Navigate to the project directory in your terminal and install the required packages.
+
+npm install
+
+4. Run the Development Server
+Start the development server.
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be accessible at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Project Structure
+The project follows the App Router structure of Next.js.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+app/page.jsx: The homepage of the application.
 
-## Learn More
+app/addschool/page.jsx: The page with the form to add a new school.
 
-To learn more about Next.js, take a look at the following resources:
+app/showschools/page.jsx: The page that displays the list of all schools.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+app/api/schools/route.js: API route for fetching and adding all schools.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+app/api/schools/[id]/route.js: API route for fetching, updating, and deleting a single school by ID.
 
-## Deploy on Vercel
+app/globals.css: Global styles using Tailwind CSS.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+app/layout.jsx: The root layout for the application.
