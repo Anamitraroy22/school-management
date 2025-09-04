@@ -3,11 +3,22 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { School, Upload, CheckCircle2, AlertCircle, Home, LinkIcon } from "lucide-react";
+import {
+  School,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  Home,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function AddSchool() {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState(null);
@@ -22,11 +33,7 @@ export default function AddSchool() {
 
   const handleUrlChange = (e) => {
     const url = e.target.value.trim();
-    if (url) {
-      setImagePreview(url); // instantly show preview
-    } else {
-      setImagePreview(null);
-    }
+    setImagePreview(url || null);
   };
 
   const onSubmit = async (data) => {
@@ -43,7 +50,7 @@ export default function AddSchool() {
         image: null,
       };
 
-      // 1️⃣ File upload priority
+      // file upload priority
       if (data.image?.length) {
         const file = data.image[0];
         const base64 = await new Promise((res, rej) => {
@@ -53,9 +60,7 @@ export default function AddSchool() {
           r.readAsDataURL(file);
         });
         payload.image = base64;
-      }
-      // 2️⃣ Otherwise, use image URL
-      else if (data.imageUrl) {
+      } else if (data.imageUrl) {
         payload.image = data.imageUrl.trim();
       }
 
@@ -73,7 +78,10 @@ export default function AddSchool() {
         setImagePreview(null);
         setTimeout(() => setStatus(null), 4500);
       } else {
-        setStatus({ type: "error", message: json.error || "Failed to add school." });
+        setStatus({
+          type: "error",
+          message: json.error || "Failed to add school.",
+        });
       }
     } catch (err) {
       console.error(err);
@@ -85,6 +93,7 @@ export default function AddSchool() {
 
   return (
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden p-6">
+      {/* background blobs */}
       <div className="absolute -top-20 -left-16 w-[28rem] h-[28rem] rounded-full bg-blue-400/30 blob pointer-events-none" />
       <div className="absolute -bottom-24 -right-10 w-[30rem] h-[30rem] rounded-full bg-pink-400/25 blob blob-2 pointer-events-none" />
 
@@ -95,9 +104,10 @@ export default function AddSchool() {
         className="relative z-10 w-full max-w-2xl rounded-3xl glass px-8 py-10"
         aria-labelledby="add-school-title"
       >
+        {/* ✅ Home button styled same as ShowSchools */}
         <Link
           href="/"
-          className="absolute top-5 left-6 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
+          className="absolute top-5 left-6 flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm font-semibold transition"
         >
           <Home className="w-4 h-4" /> Home
         </Link>
@@ -114,7 +124,7 @@ export default function AddSchool() {
           </p>
         </div>
 
-        {/* status */}
+        {/* status messages */}
         {status && (
           <div
             role="status"
@@ -134,8 +144,9 @@ export default function AddSchool() {
           </div>
         )}
 
+        {/* form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-          {/* Name */}
+          {/* name */}
           <div className="floating">
             <input
               {...register("name", {
@@ -150,11 +161,13 @@ export default function AddSchool() {
             />
             <label>School Name *</label>
             {errors.name && (
-              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+              <p className="mt-1 text-xs text-red-600">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
-          {/* Address */}
+          {/* address */}
           <div className="floating">
             <textarea
               {...register("address", {
@@ -170,11 +183,13 @@ export default function AddSchool() {
             />
             <label>Address *</label>
             {errors.address && (
-              <p className="mt-1 text-xs text-red-600">{errors.address.message}</p>
+              <p className="mt-1 text-xs text-red-600">
+                {errors.address.message}
+              </p>
             )}
           </div>
 
-          {/* City + State */}
+          {/* city + state */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="floating">
               <input
@@ -194,7 +209,7 @@ export default function AddSchool() {
             </div>
           </div>
 
-          {/* Contact + Email */}
+          {/* contact + email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="floating">
               <input
@@ -236,7 +251,7 @@ export default function AddSchool() {
             </div>
           </div>
 
-          {/* Image upload */}
+          {/* image upload */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               School Image (optional)
@@ -261,7 +276,7 @@ export default function AddSchool() {
             </label>
           </div>
 
-          {/* OR Image URL */}
+          {/* image url */}
           <div className="floating">
             <input
               {...register("imageUrl")}
@@ -272,7 +287,7 @@ export default function AddSchool() {
             <label>Image URL (optional)</label>
           </div>
 
-          {/* Preview */}
+          {/* preview */}
           {imagePreview && (
             <img
               src={imagePreview}
@@ -281,13 +296,12 @@ export default function AddSchool() {
             />
           )}
 
-          {/* Submit */}
+          {/* submit */}
           <motion.button
             type="submit"
             disabled={isLoading}
             whileTap={{ scale: 0.98 }}
             className="btn-gradient w-full py-4 px-6 text-lg font-semibold"
-            aria-disabled={isLoading}
           >
             {isLoading ? "Adding School…" : "Add School"}
           </motion.button>

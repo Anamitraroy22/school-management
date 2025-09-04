@@ -22,15 +22,17 @@ export default function ShowSchools() {
   const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState(null);
 
+  // ✅ Fetch schools from API
   const fetchSchools = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/schools");
+      const res = await fetch("/api/schools", { cache: "no-store" }); // 👈 avoid caching
       const json = await res.json();
-      if (res.ok && json.success) {
+
+      if (res.ok && (json.success || json.schools || json.data)) {
         const list = Array.isArray(json.schools ?? json.data)
-          ? (json.schools ?? json.data)
+          ? json.schools ?? json.data
           : [];
         setSchools(list);
       } else {
@@ -48,6 +50,7 @@ export default function ShowSchools() {
     fetchSchools();
   }, []);
 
+  // ✅ Filter search
   const filtered = useMemo(() => {
     const q = (query || "").trim().toLowerCase();
     if (!q) return schools;
@@ -58,6 +61,7 @@ export default function ShowSchools() {
     );
   }, [schools, query]);
 
+  // ✅ Delete school
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this school?")) return;
     setDeletingId(id);
@@ -65,7 +69,7 @@ export default function ShowSchools() {
       const res = await fetch(`/api/schools/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (res.ok && json.success) {
-        await fetchSchools();
+        await fetchSchools(); // refresh list after delete
       } else {
         alert(json.error || "Delete failed");
       }
@@ -77,6 +81,7 @@ export default function ShowSchools() {
     }
   };
 
+  // ✅ Loading screen
   if (loading) {
     return (
       <main className="min-h-screen grid place-items-center p-6">
@@ -88,6 +93,7 @@ export default function ShowSchools() {
     );
   }
 
+  // ✅ Error state
   if (error) {
     return (
       <main className="min-h-screen grid place-items-center p-6">
@@ -102,91 +108,94 @@ export default function ShowSchools() {
     );
   }
 
+  // ✅ Final Render
   return (
     <main className="relative min-h-screen px-4 py-12">
-      <a href="#main" className="skip-link">Skip to content</a>
+      {/* Background blobs */}
+      <div className="absolute -top-24 -left-12 w-[28rem] h-[28rem] rounded-full bg-indigo-400/20 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-6rem] right-[-6rem] w-[30rem] h-[30rem] rounded-full bg-fuchsia-400/18 blur-3xl pointer-events-none" />
 
-      {/* subtle background blobs */}
-      <div className="absolute -top-24 -left-12 w-[28rem] h-[28rem] rounded-full bg-indigo-400/20 blob pointer-events-none" />
-      <div className="absolute bottom-[-6rem] right-[-6rem] w-[30rem] h-[30rem] rounded-full bg-fuchsia-400/18 blob blob-2 pointer-events-none" />
-
-      <div id="main" className="relative z-10 max-w-7xl mx-auto">
-        {/* header + controls */}
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-sm text-slate-700 hover:text-slate-900"
-              aria-label="Go to homepage"
             >
               <Home className="w-4 h-4" /> Home
             </Link>
             <div className="ml-2">
-              <h1 className="display text-2xl md:text-3xl mb-0.5">All Registered Schools</h1>
-              <p className="text-sm text-slate-600">Browse, edit or remove entries</p>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                All Registered Schools
+              </h1>
+              <p className="text-sm text-slate-600">
+                Browse, search, or manage entries
+              </p>
             </div>
           </div>
 
+          {/* Search + Add */}
           <div className="flex items-center gap-3">
             <div className="relative w-[min(520px,56vw)]">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" aria-hidden />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
               <input
-                role="search"
-                aria-label="Search schools"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name, city, state..."
-                className="w-full rounded-full border border-white/60 bg-white/70 pl-9 pr-4 py-2 shadow focus:focus-gradient"
+                className="w-full rounded-full border bg-white/70 pl-9 pr-4 py-2 shadow focus:outline-none"
               />
             </div>
 
             <Link
               href="/addschool"
               className="btn-gradient px-4 py-2 text-sm font-semibold"
-              aria-label="Add new school"
             >
               Add School
             </Link>
           </div>
         </div>
 
-        {/* empty state */}
+        {/* Empty state */}
         {filtered.length === 0 ? (
-          <section className="glass rounded-3xl p-10 text-center" aria-live="polite">
-            <p className="text-slate-700 mb-4">No schools found{query ? " for your search." : "."}</p>
-            <Link href="/addschool" className="btn-gradient inline-block px-6 py-3 font-semibold">
+          <section className="glass rounded-3xl p-10 text-center">
+            <p className="text-slate-700 mb-4">
+              No schools found {query ? "for your search." : "yet."}
+            </p>
+            <Link
+              href="/addschool"
+              className="btn-gradient inline-block px-6 py-3 font-semibold"
+            >
               Add the first school →
             </Link>
           </section>
         ) : (
-          <section aria-label="Schools list" className="grid-cards">
+          <section className="grid-cards">
             {filtered.map((s) => (
-              <article key={s.id} className="card" aria-labelledby={`school-${s.id}-title`}>
-                {/* image area */}
+              <article key={s.id} className="card">
+                {/* Image */}
                 {s.image ? (
                   <img
                     src={s.image}
-                    alt={s.name || "School image"}
+                    alt={s.name}
                     className="card-img"
                     loading="lazy"
-                    fetchPriority="low"
                   />
                 ) : (
-                  <div className="card-img grid place-items-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500">
+                  <div className="card-img grid place-items-center bg-slate-100 text-slate-500">
                     <School className="w-12 h-12" />
                   </div>
                 )}
 
                 <div className="p-5">
-                  {/* school name in bold */}
-                  <h3 id={`school-${s.id}-title`} className="text-lg font-bold mb-2">
-                    {s.name}
-                  </h3>
+                  <h3 className="text-lg font-bold mb-2">{s.name}</h3>
 
                   <div className="text-sm text-slate-600 space-y-2 mb-3">
                     <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-indigo-500 mt-0.5" />
-                      <span>{s.address}, {s.city}, {s.state}</span>
+                      <MapPin className="w-4 h-4 text-indigo-500" />
+                      <span>
+                        {s.address}, {s.city}, {s.state}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-indigo-500" />
@@ -194,35 +203,30 @@ export default function ShowSchools() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-indigo-500" />
-                      <span className="truncate">{s.email_id}</span>
+                      <span>{s.email_id}</span>
                     </div>
                   </div>
 
+                  {/* Actions */}
                   <div className="flex items-center gap-3">
                     <Link
                       href={`/editSchool/${s.id}`}
-                      className="flex-1 rounded-xl bg-amber-300 hover:bg-amber-400 px-4 py-2 text-center font-semibold transition"
-                      aria-label={`Edit ${s.name}`}
+                      className="flex-1 rounded-xl bg-amber-300 hover:bg-amber-400 px-4 py-2 text-center font-semibold"
                     >
-                      <div className="inline-flex items-center gap-2">
-                        <Edit className="w-4 h-4" /> Edit
-                      </div>
+                      <Edit className="w-4 h-4 inline" /> Edit
                     </Link>
 
                     <button
                       onClick={() => handleDelete(s.id)}
                       disabled={deletingId === s.id}
-                      className="flex-1 rounded-xl bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 font-semibold transition"
-                      aria-label={`Delete ${s.name}`}
+                      className="flex-1 rounded-xl bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 font-semibold"
                     >
-                      <div className="inline-flex items-center gap-2">
-                        {deletingId === s.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                        <span>{deletingId === s.id ? "Deleting…" : "Delete"}</span>
-                      </div>
+                      {deletingId === s.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin inline" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 inline" />
+                      )}{" "}
+                      {deletingId === s.id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
                 </div>
