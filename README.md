@@ -1,4 +1,4 @@
-School Directory
+School Directory  live link- https://school-management-zeta-five.vercel.app/
 This project is a web application built with Next.js that functions as a simple school directory. It allows users to add, view, and manage school information through a responsive and user-friendly interface. The application uses a MySQL database for data persistence and a RESTful API to handle communication between the front-end and back-end.
 
 Features
