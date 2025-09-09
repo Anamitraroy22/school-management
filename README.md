@@ -81,3 +81,7 @@ app/api/schools/[id]/route.js: API route for fetching, updating, and deleting a 
 app/globals.css: Global styles using Tailwind CSS.
 
 app/layout.jsx: The root layout for the application.
+
+
+Should I add this to my portfolio or not ?
+
